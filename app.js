@@ -12,7 +12,7 @@ app.get('/', async (req, res) => {
     args: chrome.args,
     defaultViewport: chrome.defaultViewport,
     executablePath: await chrome.executablePath,
-    headless: chrome.headless,
+    headless: true,
   };
 
   try {

@@ -7,15 +7,19 @@ const chrome = require('chrome-aws-lambda');
 app.get('/', async (req, res) => {
   let query = req.query;
   const { hotelid, checkin, checkout } = query;
+  const browserFetcher = puppeteer.createBrowserFetcher();
+  const revisionInfo = await browserFetcher.download("809590");
 
   const options = {
     args: chrome.args,
     defaultViewport: chrome.defaultViewport,
-    executablePath: await chrome.executablePath,
+    executablePath: revisionInfo.executablePath,
     headless: chrome.headless,
   };
 
   try {
+
+    
     const browser = await chrome.puppeteer.launch(options);
 
     const page = await browser.newPage();

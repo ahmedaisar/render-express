@@ -1,45 +1,41 @@
 // app.js
 const express = require('express');
 const app = express();
-const chromium = require('chrome-aws-lambda');
-const puppeteer = require('puppeteer-core');
+const chrome = require('chrome-aws-lambda');
+//const puppeteer = require('puppeteer-core');
 
 app.get('/', async (req, res) => {
-  let browser = null;
+  let query = req.query;
+  const { hotelid, checkin, checkout, rooms } = query;
+
+  const options = {
+    args: chrome.args,
+    executablePath: await chrome.executablePath,
+    headless: chrome.headless,
+  };
 
   try {
-    // Launch Chrome
-    browser = await chromium.puppeteer.launch({
-      args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath,
-      headless: chromium.headless,
+    const browser = await chrome.puppeteer.launch(options);
+
+    const page = await browser.newPage();
+
+    await page.goto(
+      `https://hotelscan.com/combiner/${hotelid}?pos=zz&locale=en&checkin=${checkin}&checkout=${checkout}&rooms=${rooms}&mobile=0&loop=1&country=MV&ef=1&geoid=xmmmamtksdxx&toas=resort&availability=1&deviceNetwork=4g&deviceCpu=20&deviceMemory=8&limit=25&offset=0`,
+      {
+        waitUntil: "networkidle2",
+      }
+    );
+    // let body = await page.waitForSelector('body');
+    // let json = await body?.evaluate(el => el.textContent);
+    await page.waitForTimeout(1000);
+    let html = await page.evaluate(() => {
+      return JSON.parse(document.querySelector("body").innerText);
     });
-
-    // Create a new page
-    let page = await browser.newPage();
-
-    // Navigate to a website
-    await page.goto('https://google.com');
-
-    // Take a screenshot
-    let screenshot = await page.screenshot({ encoding: 'binary' });
-
-    // Send the screenshot as a response
-    res.writeHead(200, {
-      'Content-Type': 'image/png',
-      'Content-Length': screenshot.length,
-    });
-    res.end(screenshot, 'binary');
+    await browser.close();
+    res.status(200).json(html);
+    console.log(html);
   } catch (error) {
-    // Handle any errors
-    console.error(error);
-    res.status(500).send('Something went wrong');
-  } finally {
-    // Close the browser
-    if (browser !== null) {
-      await browser.close();
-    }
+    console.log(error);
   }
 });
 

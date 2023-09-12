@@ -2,26 +2,27 @@
 const express = require('express');
 const app = express();
 const chrome = require('chrome-aws-lambda');
-//const puppeteer = require('puppeteer-core');
+const puppeteer = require('puppeteer-core');
 
-app.get('/api', async (req, res) => {
+app.get('/', async (req, res) => {
   let query = req.query;
   const { hotelid, checkin, checkout } = query;
-  const browserFetcher = chrome.puppeteer.createBrowserFetcher();
-  const revisionInfo = await browserFetcher.download("809590");
-  console.log(revisionInfo)
+  // const browserFetcher = puppeteer.createBrowserFetcher();
+  // const revisionInfo = await browserFetcher.download("809590");
+  // console.log(await chrome.executablePath)
 
   const options = {
-    args: chrome.args,
-    defaultViewport: chrome.defaultViewport,
-    executablePath: revisionInfo.executablePath,
-    headless: chrome.headless,
+    args: [...chrome.args, "--hide-scrollbars", "--disable-web-security", '--font-render-hinting=none'],
+      defaultViewport: chrome.defaultViewport,
+      executablePath: await chrome.executablePath,
+      headless: true,
+      ignoreHTTPSErrors: true,
   };
 
   try {
 
     
-    const browser = await chrome.puppeteer.launch(options);
+    const browser = await puppeteer.launch(options);
 
     const page = await browser.newPage();
 

@@ -6,7 +6,7 @@ const chrome = require("chrome-aws-lambda");
 
 const exePath =
   process.platform === "win32"
-    ? "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe"
+    ? "C:/Program Files/Google/Chrome/Application/chrome.exe"
     : process.platform === "linux"
     ? "/usr/bin/google-chrome"
     : "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
@@ -16,8 +16,8 @@ async function getOptions(isDev) {
   if (isDev) {
     options = {
       args: [],
-      executablePath: exePath,
-      headless: true,
+      executablePath: "C:/Program Files/Google/Chrome/Application/chrome.exe",
+      headless: false,
     };
   } else {
     options = {
@@ -30,12 +30,11 @@ async function getOptions(isDev) {
 }
  
 app.get('/', async (req, res) => {
-  const isDev = req.query.isDev === "false";
+  const isDev = false;
   let query = req.query;
   const { hotelid, checkin, checkout } = query;
 
-  if(revisionInfo){
-    try {
+  try {
       const options = await getOptions(isDev);
       const browser = await puppeteer.launch(options);
       const page = await browser.newPage();
@@ -61,8 +60,7 @@ app.get('/', async (req, res) => {
       });
     }
     
-  }
-})
+  });
 
 // Start the server
 const PORT = process.env.PORT || 3000;

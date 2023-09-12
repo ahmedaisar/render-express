@@ -6,10 +6,11 @@ const chrome = require('chrome-aws-lambda');
 
 app.get('/', async (req, res) => {
   let query = req.query;
-  const { hotelid, checkin, checkout, rooms } = query;
+  const { hotelid, checkin, checkout } = query;
 
   const options = {
     args: chrome.args,
+    defaultViewport: chrome.defaultViewport,
     executablePath: await chrome.executablePath,
     headless: chrome.headless,
   };
@@ -20,20 +21,19 @@ app.get('/', async (req, res) => {
     const page = await browser.newPage();
 
     await page.goto(
-      `https://hotelscan.com/combiner/${hotelid}?pos=zz&locale=en&checkin=${checkin}&checkout=${checkout}&rooms=${rooms}&mobile=0&loop=1&country=MV&ef=1&geoid=xmmmamtksdxx&toas=resort&availability=1&deviceNetwork=4g&deviceCpu=20&deviceMemory=8&limit=25&offset=0`,
+      `https://hotelscan.com/combiner/${hotelid}?pos=zz&locale=en&checkin=${checkin}&checkout=${checkout}&rooms=2&mobile=0&loop=1&country=MV&ef=1&geoid=xmmmamtksdxx&toas=resort&availability=1&deviceNetwork=4g&deviceCpu=20&deviceMemory=8&limit=25&offset=0`,
       {
         waitUntil: "networkidle2",
       }
     );
-    // let body = await page.waitForSelector('body');
-    // let json = await body?.evaluate(el => el.textContent);
-    await page.waitForTimeout(1000);
-    let html = await page.evaluate(() => {
-      return JSON.parse(document.querySelector("body").innerText);
-    });
+    // let html = await page.evaluate(() => {
+    //   return JSON.parse(document.querySelector("body").innerText);
+    // });
+    let body = await page.waitForSelector('body');
+    let json = await body?.evaluate(el => el.textContent);
+    await page.waitForTimeout(1000);    
     await browser.close();
-    res.status(200).json(html);
-    console.log(html);
+    res.status(200).json(json);
   } catch (error) {
     console.log(error);
   }

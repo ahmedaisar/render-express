@@ -9,7 +9,7 @@ app.get('/', async (req, res) => {
 
   try {
     // Launch Chrome
-    browser = await puppeteer.launch({
+    browser = await chromium.puppeteer.launch({
       args: chromium.args,
       defaultViewport: chromium.defaultViewport,
       executablePath: await chromium.executablePath,
@@ -20,7 +20,7 @@ app.get('/', async (req, res) => {
     let page = await browser.newPage();
 
     // Navigate to a website
-    await page.goto('https://example.com');
+    await page.goto('https://google.com');
 
     // Take a screenshot
     let screenshot = await page.screenshot({ encoding: 'binary' });

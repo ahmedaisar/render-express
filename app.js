@@ -4,11 +4,12 @@ const app = express();
 const chrome = require('chrome-aws-lambda');
 //const puppeteer = require('puppeteer-core');
 
-app.get('/', async (req, res) => {
+app.get('/api', async (req, res) => {
   let query = req.query;
   const { hotelid, checkin, checkout } = query;
-  const browserFetcher = puppeteer.createBrowserFetcher();
+  const browserFetcher = chrome.puppeteer.createBrowserFetcher();
   const revisionInfo = await browserFetcher.download("809590");
+  console.log(revisionInfo)
 
   const options = {
     args: chrome.args,

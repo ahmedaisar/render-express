@@ -116,7 +116,15 @@ app.get('/scan', async (req, res) => {
       await page.goto(
         `https://hotelscan.com/combiner/${hotelid}?pos=zz&locale=en&checkin=${checkin}&checkout=${checkout}&rooms=2&mobile=0&loop=1&country=MV&ef=1&geoid=xmmmamtksdxx&toas=resort&availability=1&deviceNetwork=4g&deviceCpu=20&deviceMemory=8&limit=25&offset=0`,
         {
-          waitUntil: "networkidle0",
+          waitUntil: "networkidle2",
+          timeout: 0
+        }
+      );
+      await page.goto(
+        `https://hotelscan.com/combiner/${hotelid}?pos=zz&locale=en&checkin=${checkin}&checkout=${checkout}&rooms=2&mobile=0&loop=1&country=MV&ef=1&geoid=xmmmamtksdxx&toas=resort&availability=1&deviceNetwork=4g&deviceCpu=20&deviceMemory=8&limit=25&offset=0`,
+        {
+          waitUntil: "networkidle2",
+          timeout: 0
         }
       );
       // let html = await page.evaluate(() => {
@@ -127,8 +135,7 @@ app.get('/scan', async (req, res) => {
       await browser.close();   
       res.status(200).json(json);           
     } catch (error) {
-      console.log(error);
-      await browser.close();   
+      console.log(error); 
       res.statusCode = 500;
       res.json({
         body: "Sorry, Something went wrong!",

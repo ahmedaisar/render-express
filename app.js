@@ -1,5 +1,6 @@
 // app.js
 process.setMaxListeners(0)
+const cors = require('cors')
 const fs = require('fs')
 const express = require('express');
 const app = express();
@@ -9,7 +10,7 @@ const NodeCache = require('node-cache');
 // const compression = require('compression');
 // app.use(compression()); 
 // app.use(express.json());
- 
+app.use(cors())
 const cache = new NodeCache(); 
 
 app.get('/', async (req, res) => { res.send({

@@ -5,9 +5,9 @@ const app = express();
 const chrome = require("chrome-aws-lambda");
 const path = require("path")
 const NodeCache = require('node-cache');
-const compression = require('compression');
-app.use(compression()); 
-app.use(express.json());
+// const compression = require('compression');
+// app.use(compression()); 
+// app.use(express.json());
  
 const cache = new NodeCache(); 
 

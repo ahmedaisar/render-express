@@ -1,14 +1,90 @@
 // app.js
 const express = require('express');
 const app = express();
-const puppeteer = require("puppeteer-core");
+//const puppeteer = require("puppeteer-core");
 const chrome = require("chrome-aws-lambda");
  
 app.get('/', async (req, res) => { res.send({
   body: "Hello!",
 });  })
 
-app.get('/hotel', async (req, res) => {
+app.get('/hotels', async (req, res) => { 
+
+  const api = "https://api.anextour.com/search/Hotels?SEARCH_MODE=b2c&SEARCH_TYPE=PACKET_ONLY_HOTELS&lang=&state=maldives&townFrom=1"
+
+  try {
+    const options = {
+      args: [...chrome.args, '--hide-scrollbars', '--disable-web-security'],
+      executablePath: await chrome.executablePath,
+      headless: "new",
+    };
+    const browser = await chrome.puppeteer.launch(options);
+    const page = await browser.newPage();
+
+    await page.goto(
+      api,
+      {
+        waitUntil: "networkidle0",
+      }
+    );
+    // let html = await page.evaluate(() => {
+    //   return JSON.parse(document.querySelector("body").innerText);
+    // });
+    let body = await page.waitForSelector('body');
+    let json = await body?.evaluate(el => el.textContent);
+    await browser.close();   
+    res.status(200).json(json);       
+  } catch (error) {
+    console.log(error);
+    await browser.close();   
+    res.statusCode = 500;
+    res.json({
+      body: "Sorry, Something went wrong!",
+    });
+  }
+
+
+})
+
+app.get('/hotel', async (req, res) => { 
+
+  const api = "https://api.anextour.com/b2c/Hotel?hotel=/hotels/maldives/kaani-beach-hotel&lang=eng"
+
+  try {
+    const options = {
+      args: [...chrome.args, '--hide-scrollbars', '--disable-web-security'],
+      executablePath: await chrome.executablePath,
+      headless: "new",
+    };
+    const browser = await chrome.puppeteer.launch(options);
+    const page = await browser.newPage();
+
+    await page.goto(
+      api,
+      {
+        waitUntil: "networkidle0",
+      }
+    );
+    // let html = await page.evaluate(() => {
+    //   return JSON.parse(document.querySelector("body").innerText);
+    // });
+    let body = await page.waitForSelector('body');
+    let json = await body?.evaluate(el => el.textContent);
+    await browser.close();   
+    res.status(200).json(json);       
+  } catch (error) {
+    console.log(error);
+    await browser.close();   
+    res.statusCode = 500;
+    res.json({
+      body: "Sorry, Something went wrong!",
+    });
+  }
+
+
+})
+
+app.get('/scan', async (req, res) => {
   let query = req.query;
   const { hotelid, checkin, checkout } = query;
 
@@ -16,7 +92,7 @@ app.get('/hotel', async (req, res) => {
       const options = {
         args: [...chrome.args, '--hide-scrollbars', '--disable-web-security'],
         executablePath: await chrome.executablePath,
-        headless: true,
+        headless: "new",
       };
       const browser = await chrome.puppeteer.launch(options);
       const page = await browser.newPage();
@@ -24,7 +100,7 @@ app.get('/hotel', async (req, res) => {
       await page.goto(
         `https://hotelscan.com/combiner/${hotelid}?pos=zz&locale=en&checkin=${checkin}&checkout=${checkout}&rooms=2&mobile=0&loop=1&country=MV&ef=1&geoid=xmmmamtksdxx&toas=resort&availability=1&deviceNetwork=4g&deviceCpu=20&deviceMemory=8&limit=25&offset=0`,
         {
-          waitUntil: "networkidle2",
+          waitUntil: "networkidle0",
         }
       );
       // let html = await page.evaluate(() => {

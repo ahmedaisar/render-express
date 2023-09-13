@@ -1,4 +1,5 @@
 // app.js
+process.setMaxListeners(0)
 const fs = require('fs')
 const express = require('express');
 const app = express();

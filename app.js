@@ -173,6 +173,54 @@ app.get('/maldives', async (req, res) => {
   
 })
 
+app.get('/autocomplete', async (req, res) => {
+  let query = req.query;
+  const { hotel } = query;
+  // const cacheKey = hotelid;
+  // let cachedData = cache.get(cacheKey);
+
+  try {
+      const options = {
+        args: [...chrome.args, '--hide-scrollbars', '--disable-web-security'],
+        executablePath: await chrome.executablePath,
+        headless: "new",
+      };
+      const browser = await chrome.puppeteer.launch(options);
+      const page = await browser.newPage();
+      await page.setRequestInterception(true);
+
+      // Request intercept handler... will be triggered with 
+      // each page.goto() statement
+      page.on('request', interceptedRequest => {
+
+          // Here, is where you change the request method and 
+          // add your post data
+          var data = {
+              'method': 'POST',
+              'postData': `query=${hotel}&language=en-us&size=5&pageview_id=&aid=7974605`
+          };
+
+          // Request modified... finish sending! 
+          interceptedRequest.continue(data);
+      });
+  
+      const response = await page.goto('https://accommodations.booking.com/autocomplete.json');     
+      const responseBody = await response.text();
+      console.log(responseBody);
+      // let body = await page.waitForSelector('body');
+      // let json = await body?.evaluate(el => el.textContent);
+      await browser.close();   
+      res.status(200).json(responseBody);           
+    } catch (error) {
+      console.log(error); 
+      res.statusCode = 500;
+      res.json({
+        body: "Sorry, Something went wrong!",
+      });
+    }
+    
+  });
+
 // Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server is listening on port ${PORT}.`));

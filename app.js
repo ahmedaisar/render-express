@@ -173,7 +173,7 @@ app.get('/maldives', async (req, res) => {
   
 })
 
-app.get('/autocomplete', async (req, res) => {
+app.post('/autocomplete', async (req, res) => {
   let query = req.query;
   const { hotel } = query;
   // const cacheKey = hotelid;

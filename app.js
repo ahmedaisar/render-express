@@ -188,14 +188,11 @@ app.get('/autocomplete', async (req, res) => {
       const browser = await chrome.puppeteer.launch(options);
       const page = await browser.newPage();
       await page.setRequestInterception(true);
-      var postData = {
-        'method': 'POST',
-        'postData': `query=${hotel}&language=en-us&size=5&pageview_id=&aid=7974605`
-    };
+ 
       page.once('request', request => {
           var data = {
               'method': 'POST',
-              'postData': querystring.stringify(postData),
+              'postData': `query=${hotel}&language=en-us&size=5&pageview_id=&aid=7974605`,
               'headers': {
                   ...request.headers(),
                   'Content-Type': 'application/x-www-form-urlencoded'

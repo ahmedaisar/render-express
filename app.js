@@ -62,8 +62,10 @@ app.get('/hotels', async (req, res) => {
 })
 
 app.get('/hotel', async (req, res) => { 
+  let query = req.query;
+  const { hotel } = query;
 
-  const api = "https://api.anextour.com/b2c/Hotel?hotel=/hotels/maldives/kaani-beach-hotel&lang=eng"
+  const api = `https://api.anextour.com/b2c/Hotel?hotel=${hotel}&lang=eng`
 
   try {
     const options = {
@@ -147,8 +149,8 @@ app.get('/scan', async (req, res) => {
   });
 
 app.get('/maldives', async (req, res) => {  
-  const cacheKey = 'maldives';
-  let cachedData = cache.get(cacheKey);
+  // const cacheKey = 'maldives';
+  // let cachedData = cache.get(cacheKey);
   const readFile = (path, opts = 'utf8') =>
     new Promise((resolve, reject) => {
       fs.readFile(path, opts, (err, data) => {
@@ -159,11 +161,11 @@ app.get('/maldives', async (req, res) => {
   try {
     const jsonDirectory = path.join(process.cwd(), "json");
     const jsondata = await readFile(jsonDirectory + "/data.json");    
-    if (!cachedData) {
-      cache.set(cacheKey, jsondata);
-      cachedData = jsondata;    
-     }
-     res.status(200).json(cachedData);
+    // if (!cachedData) {
+    //   cache.set(cacheKey, jsondata);
+    //   cachedData = jsondata;    
+    //  }
+     res.status(200).json(jsondata);
   } catch (error) {
     console.log(error)
   }

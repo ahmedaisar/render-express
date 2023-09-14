@@ -188,27 +188,26 @@ app.get('/autocomplete', async (req, res) => {
       const browser = await chrome.puppeteer.launch(options);
       const page = await browser.newPage();
       await page.setRequestInterception(true);
-
-      // Request intercept handler... will be triggered with 
-      // each page.goto() statement
-      page.on('request', interceptedRequest => {
-
-          // Here, is where you change the request method and 
-          // add your post data
+      var postData = {
+        'method': 'POST',
+        'postData': `query=${hotel}&language=en-us&size=5&pageview_id=&aid=7974605`
+    };
+      page.once('request', request => {
           var data = {
               'method': 'POST',
-              'postData': `query=${hotel}&language=en-us&size=5&pageview_id=&aid=7974605`
+              'postData': querystring.stringify(postData),
+              'headers': {
+                  ...request.headers(),
+                  'Content-Type': 'application/x-www-form-urlencoded'
+              },
           };
-
-          // Request modified... finish sending! 
-          interceptedRequest.continue(data);
+      
+          request.continue(data);
+          page.setRequestInterception(false);
       });
-  
       const response = await page.goto('https://accommodations.booking.com/autocomplete.json');     
       const responseBody = await response.text();
       console.log(responseBody);
-      // let body = await page.waitForSelector('body');
-      // let json = await body?.evaluate(el => el.textContent);
       await browser.close();   
       res.status(200).json(responseBody);           
     } catch (error) {

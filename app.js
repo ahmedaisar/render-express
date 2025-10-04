@@ -166,7 +166,7 @@ app.get("/hotel-detail", async (req, res) => {
 
     // Intercept XHR requests
     await page.setRequestInterception(true);
-    let apiResponse: any = null;
+    let apiResponse;
 
     page.on("request", (request) => {
       request.continue();

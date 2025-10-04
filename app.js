@@ -148,6 +148,61 @@ app.get('/scan', async (req, res) => {
     
   });
 
+app.get("/hotel-detail", async (req, res) => {
+  const { hotelid, checkin, checkout } = req.query;
+
+  if (!hotelid || !checkin || !checkout) {
+    return res.status(400).json({ error: "Missing hotelid, checkin, or checkout" });
+  }
+
+  try {
+    const browser = await puppeteer.launch({ headless: "new", args: ["--disable-web-security"] });
+    const page = await browser.newPage();
+
+    // Optional: Set User-Agent if required
+    await page.setUserAgent(
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+    );
+
+    // Intercept XHR requests
+    await page.setRequestInterception(true);
+    let apiResponse: any = null;
+
+    page.on("request", (request) => {
+      request.continue();
+    });
+
+    page.on("response", async (response) => {
+      const url = response.url();
+      if (url.includes("/s/tsx/api/search/products")) {
+        try {
+          apiResponse = await response.json();
+        } catch (err) {
+          console.error("Failed to parse JSON from XHR:", err);
+        }
+      }
+    });
+
+    // Navigate to the hotel detail page
+    const url = `https://www.hotelscan.com/s/tsx/${hotelid}?pageType=hotelDetail&dateFrom=${checkin}&dateTo=${checkout}&adults=2&destination=MV`;
+    await page.goto(url, { waitUntil: "networkidle2", timeout: 0 });
+
+    // Wait a few seconds to ensure the XHR fires
+    await page.waitForTimeout(5000);
+
+    await browser.close();
+
+    if (!apiResponse) {
+      return res.status(404).json({ error: "Products API response not found" });
+    }
+
+    res.status(200).json(apiResponse);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Something went wrong", details: err.message });
+  }
+});
+
 app.get('/maldives', async (req, res) => {  
   // const cacheKey = 'maldives';
   // let cachedData = cache.get(cacheKey);

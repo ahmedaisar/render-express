@@ -156,8 +156,13 @@ app.get("/hotel-detail", async (req, res) => {
   }
 
   try {
-    const browser = await puppeteer.launch({ headless: "new", args: ["--disable-web-security"] });
-    const page = await browser.newPage();
+    const options = {
+        args: [...chrome.args, '--hide-scrollbars', '--disable-web-security'],
+        executablePath: await chrome.executablePath,
+        headless: "new",
+      };
+      const browser = await chrome.puppeteer.launch(options);
+      const page = await browser.newPage();
 
     // Optional: Set User-Agent if required
     await page.setUserAgent(
